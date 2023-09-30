@@ -1,23 +1,26 @@
 extends Node2D
 
+enum DIRECTION { LEFT, RIGHT, UP, DOWN } 
+enum COOKIE_TYPE { NORMAL, SPEED_UP, SLOW_DOWN, GROW, DUAL_COOKIE }
+const COOKIE_TYPE_COUNT = 5
+
 class Cookie:
 	var position: Vector2i
 	var is_in_snake: bool
+	var cookie_type: COOKIE_TYPE
 
 @onready var map = $Map
 @onready var camera = $Camera2D
-
-enum DIRECTION { LEFT, RIGHT, UP, DOWN } 
 
 var snake: Array[Vector2i] = []
 var direction = DIRECTION.RIGHT
 var previous_direction = DIRECTION.RIGHT
 var speed: float = 7
 var step: float = 0.0
-var growCookieIndex: int = -1
 var dead: bool = false
 
 var cookies: Array[Cookie] = []
+var eaten_cookies: Array[Cookie] = []
 var do_shrink = false
 
 func _shrink():
@@ -75,9 +78,7 @@ func _cut_snake(at: int) -> bool:
 
 	return dead
 
-
-
-func _spawn_cookie():
+func _spawn_cookie(cookie_type = COOKIE_TYPE.NORMAL):	
 	var is_wrong = true
 	var cookie: Cookie
 	while is_wrong:
@@ -88,6 +89,7 @@ func _spawn_cookie():
 		cookie = Cookie.new()
 		cookie.position = Vector2i(x, y)
 		cookie.is_in_snake = false
+		cookie.cookie_type = cookie_type
 	
 		is_wrong = false
 		for snake_body_part in snake:
@@ -99,21 +101,24 @@ func _spawn_cookie():
 	pass
 
 func _check_cookie():
-	var recreate: int = 0
-	for i in range(cookies.size()):
-		var cookie = cookies[i]
-		var tile = map.get_cell_tile_data(0, cookie.position)
-		if tile == null || map.get_cell_tile_data(0, cookie.position).get_custom_data("wall"):
-			cookies[i] = null
-			recreate+=1
-	
-	cookies = cookies.filter(func(cookie): return cookie != null)
+	var need_check = true 
+	while need_check:
+		need_check = false
+		var recreate: Array[Cookie] = []
+		for i in range(cookies.size()):
+			var cookie = cookies[i]
+			var tile = map.get_cell_tile_data(0, cookie.position)
+			if tile == null || map.get_cell_tile_data(0, cookie.position).get_custom_data("wall"):
+				recreate.append(cookies[i])
+				cookies[i] = null
 		
-	for i in range(recreate):
-		_spawn_cookie()
-	
-	if recreate > 0:
-		_check_cookie()
+		cookies = cookies.filter(func(cookie): return cookie != null)
+			
+		for i in range(recreate.size()):
+			_spawn_cookie(recreate[i].cookie_type)
+		
+		if recreate.size() > 0:
+			need_check = true
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -190,32 +195,28 @@ func _process(delta):
 			
 		snake.append(new_head)
 		
-		for cookie in cookies:
+		for i in range(cookies.size()):
+			var cookie = cookies[i]
 			if cookie.position == new_head:
-				cookie.is_in_snake = true
+				cookies.pop_at(i)
+				eaten_cookies.append(cookie)
+				break
 		
-		if growCookieIndex == -1:
+		if eaten_cookies.front() == null || eaten_cookies.front().position != snake.front():
 			snake.pop_front()
 		else:
-			growCookieIndex = -1
-			cookies.pop_at(growCookieIndex)
-			_spawn_cookie()
-	
-	# Cookie eaten
-	for i in range(cookies.size()):
-		if cookies[i].position == snake.front():
-			growCookieIndex = i
-			break
+			var cookie: Cookie = eaten_cookies.pop_front()
+			if cookie.cookie_type == COOKIE_TYPE.NORMAL:
+				_spawn_cookie()
 	
 	# render cookies
 	map.clear_layer(2)
 	for cookie in cookies:
-		if cookie.is_in_snake:
-			map.set_cell(2, cookie.position, 0, Vector2i(1, 1))
-		else:
-			map.set_cell(2, cookie.position, 0, Vector2i(0, 1))
+		map.set_cell(2, cookie.position, 0, Vector2i(1 + cookie.cookie_type, 1))
+		
+	for cookie in eaten_cookies:
+		map.set_cell(2, cookie.position, 0, Vector2i(0, 1))
 
-	
 	# render snake
 	map.clear_layer(1)
 	camera.position = map.map_to_local(snake.back())
@@ -276,3 +277,6 @@ func _process(delta):
 func _on_shrink_timer_timeout():
 	do_shrink = true
 	
+func _on_power_up_timer_timeout():
+	if cookies.filter(func(cookie): return cookie.cookie_type != COOKIE_TYPE.NORMAL).size() == 0:
+		_spawn_cookie(randi_range(0, COOKIE_TYPE_COUNT-1))
