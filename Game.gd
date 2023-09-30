@@ -8,11 +8,10 @@ class Cookie:
 @onready var camera = $Camera2D
 
 enum DIRECTION { LEFT, RIGHT, TOP, DOWN } 
-	
 
 var snake: Array[Vector2i] = []
 var direction = DIRECTION.RIGHT
-var speed: float = 10
+var speed: float = 5
 var step: float = 0.0
 var grow: bool = false
 
@@ -37,19 +36,27 @@ func _ready():
 	snake.append(Vector2i(3, 1))
 	snake.append(Vector2i(4, 1))
 	snake.append(Vector2i(5, 1))
+	snake.append(Vector2i(6, 1))
+	snake.append(Vector2i(7, 1))
+	snake.append(Vector2i(8, 1))
+	snake.append(Vector2i(9, 1))
 	
 	_spawn_cookie()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if Input.is_action_pressed("Right"):
-		direction = DIRECTION.RIGHT
+		if direction != DIRECTION.LEFT:
+			direction = DIRECTION.RIGHT
 	elif Input.is_action_pressed("Left"):
-		direction = DIRECTION.LEFT
+		if direction != DIRECTION.RIGHT:
+			direction = DIRECTION.LEFT
 	elif Input.is_action_pressed("Up"):
-		direction = DIRECTION.TOP
+		if direction != DIRECTION.DOWN:
+			direction = DIRECTION.TOP
 	elif Input.is_action_pressed("Down"):
-		direction = DIRECTION.DOWN		
+		if direction != DIRECTION.TOP:
+			direction = DIRECTION.DOWN
 	
 	step += delta * speed
 	
@@ -66,26 +73,32 @@ func _process(delta):
 		if direction == DIRECTION.DOWN:
 			new_head.y += 1	
 		
-		var ok = true
-		for body_part in snake:
+		var collision_index = -1
+		for i in range(snake.size()):
+			var body_part = snake[i]
 			if body_part == new_head:
-				ok = false
+				collision_index = i
 				break
 				
-		if ok:
-			snake.append(new_head)
+		if collision_index >= 0:
+			# Cut snake at the collision position
+			snake = snake.slice(collision_index, snake.size())
+			if snake.size() <= 3:
+				# Explosionen!
+				print("Dead")
+				
 			
-			for cookie in cookies:
-				if cookie.position == new_head:
-					cookie.is_in_snake = true
-			
-			if !grow:
-				snake.pop_front()
-			else:
-				grow = false
-				_spawn_cookie()
-		#else:
-			# Explosionen!
+		snake.append(new_head)
+		
+		for cookie in cookies:
+			if cookie.position == new_head:
+				cookie.is_in_snake = true
+		
+		if !grow:
+			snake.pop_front()
+		else:
+			grow = false
+			_spawn_cookie()
 	
 	# Cookie eaten
 	for i in range(cookies.size()):
