@@ -12,7 +12,8 @@ config_version=5
 
 config/name="snake_ltd"
 run/main_scene="res://Game.tscn"
-config/features=PackedStringArray("4.0", "GL Compatibility")
+config/features=PackedStringArray("4.1", "GL Compatibility")
+boot_splash/bg_color=Color(0.45098, 0.501961, 0.94902, 1)
 config/icon="res://icon.svg"
 
 [input]
@@ -42,3 +43,4 @@ Right={
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.45098, 0.501961, 0.94902, 1)
