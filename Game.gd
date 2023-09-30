@@ -1,14 +1,33 @@
 extends Node2D
 
+class Cookie:
+	var position: Vector2i
+	var is_in_snake: bool
+
 @onready var map = $Map
+@onready var camera = $Camera2D
 
 enum DIRECTION { LEFT, RIGHT, TOP, DOWN } 
 	
 
 var snake: Array[Vector2i] = []
 var direction = DIRECTION.RIGHT
-var speed: float = 5
+var speed: float = 10
 var step: float = 0.0
+var grow: bool = false
+
+var cookies: Array[Cookie] = []
+
+func _spawn_cookie():
+	var bounding = map.get_used_rect()
+	var x = randi_range(0, bounding.size.x-1)
+	var y = randi_range(0, bounding.size.y-1)
+	
+	var cookie = Cookie.new()
+	cookie.position = Vector2i(x, y)
+	cookie.is_in_snake = false
+	cookies.append(cookie)
+	pass
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -19,6 +38,8 @@ func _ready():
 	snake.append(Vector2i(4, 1))
 	snake.append(Vector2i(5, 1))
 	
+	_spawn_cookie()
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if Input.is_action_pressed("Right"):
@@ -45,14 +66,46 @@ func _process(delta):
 		if direction == DIRECTION.DOWN:
 			new_head.y += 1	
 		
-		if snake[snake.size()-2] != new_head:
+		var ok = true
+		for body_part in snake:
+			if body_part == new_head:
+				ok = false
+				break
+				
+		if ok:
 			snake.append(new_head)
-			snake.pop_front()
+			
+			for cookie in cookies:
+				if cookie.position == new_head:
+					cookie.is_in_snake = true
+			
+			if !grow:
+				snake.pop_front()
+			else:
+				grow = false
+				_spawn_cookie()
 		#else:
 			# Explosionen!
 	
+	# Cookie eaten
+	for i in range(cookies.size()):
+		if cookies[i].position == snake.front():
+			cookies.pop_at(i)
+			grow = true
+			break
+	
+	# render cookies
+	map.clear_layer(2)
+	for cookie in cookies:
+		if cookie.is_in_snake:
+			map.set_cell(2, cookie.position, 0, Vector2i(1, 1))
+		else:
+			map.set_cell(2, cookie.position, 0, Vector2i(0, 1))
+
+	
 	# render snake
 	map.clear_layer(1)
+	camera.position = map.map_to_local(snake.back())
 	for i in range(snake.size()):
 		var body_part = snake[i]
 		var type = 0;
@@ -81,8 +134,6 @@ func _process(delta):
 		if i > 0 && i < snake.size()-1:
 			var prev = snake[i-1]
 			var next = snake[i+1]
-			
-			type = 99
 
 			if prev.x == next.x:
 				type = 4 # horizontal
