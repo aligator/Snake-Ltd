@@ -16,6 +16,10 @@ config/features=PackedStringArray("4.1", "GL Compatibility")
 boot_splash/bg_color=Color(0.45098, 0.501961, 0.94902, 1)
 config/icon="res://icon.svg"
 
+[autoload]
+
+Global="*res://global.gd"
+
 [input]
 
 Up={

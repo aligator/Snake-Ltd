@@ -7,10 +7,11 @@ class Cookie:
 @onready var map = $Map
 @onready var camera = $Camera2D
 
-enum DIRECTION { LEFT, RIGHT, TOP, DOWN } 
+enum DIRECTION { LEFT, RIGHT, UP, DOWN } 
 
 var snake: Array[Vector2i] = []
 var direction = DIRECTION.RIGHT
+var previous_direction = DIRECTION.RIGHT
 var speed: float = 7
 var step: float = 0.0
 var growCookieIndex: int = -1
@@ -66,25 +67,33 @@ func _shrink():
 			return
 
 func _cut_snake(at: int) -> bool:
-	snake = snake.slice(at, snake.size())
-	if snake.size() <= 3:
-		dead = true
+	# No cutting - instant death
+	
+	#snake = snake.slice(at, snake.size())
+	#if snake.size() <= 3:
+	dead = true
 
 	return dead
 
+
+
 func _spawn_cookie():
-	var bounding = map.get_used_rect()
-	var x = randi_range(0, bounding.size.x-1)
-	var y = randi_range(0, bounding.size.y-1)
+	var is_wrong = true
+	var cookie: Cookie
+	while is_wrong:
+		var bounding = map.get_used_rect()
+		var x = randi_range(0, bounding.size.x-1)
+		var y = randi_range(0, bounding.size.y-1)
 	
-	var cookie = Cookie.new()
-	cookie.position = Vector2i(x, y)
-	cookie.is_in_snake = false
+		cookie = Cookie.new()
+		cookie.position = Vector2i(x, y)
+		cookie.is_in_snake = false
 	
-	for snake_body_part in snake:
-		if snake_body_part == cookie.position:
-			_spawn_cookie()
-			return
+		is_wrong = false
+		for snake_body_part in snake:
+			if snake_body_part == cookie.position:
+				is_wrong = true
+				return
 	
 	cookies.append(cookie)
 	pass
@@ -112,12 +121,6 @@ func _ready():
 	snake.append(Vector2i(1, 5))
 	snake.append(Vector2i(2, 5))
 	snake.append(Vector2i(3, 5))
-	snake.append(Vector2i(4, 5))
-	snake.append(Vector2i(5, 5))
-	snake.append(Vector2i(6, 5))
-	snake.append(Vector2i(7, 5))
-	snake.append(Vector2i(8, 5))
-	snake.append(Vector2i(9, 5))
 	
 	_spawn_cookie()
 
@@ -132,32 +135,36 @@ func _process(delta):
 	if dead:
 		return
 		
+	Global.score = snake.size() - 3
+		
 	_check_cookie()
 	
 	if Input.is_action_pressed("Right"):
-		if direction != DIRECTION.LEFT:
-			direction = DIRECTION.RIGHT
+		direction = DIRECTION.RIGHT
 	elif Input.is_action_pressed("Left"):
-		if direction != DIRECTION.RIGHT:
-			direction = DIRECTION.LEFT
+		direction = DIRECTION.LEFT
 	elif Input.is_action_pressed("Up"):
-		if direction != DIRECTION.DOWN:
-			direction = DIRECTION.TOP
+		direction = DIRECTION.UP
 	elif Input.is_action_pressed("Down"):
-		if direction != DIRECTION.TOP:
-			direction = DIRECTION.DOWN
+		direction = DIRECTION.DOWN
 	
 	step += delta * speed
 	
 	if step >= 1.0:
 		step = step - 1.0
+		
+		if direction == DIRECTION.RIGHT && previous_direction == DIRECTION.LEFT || direction == DIRECTION.LEFT && previous_direction == DIRECTION.RIGHT || direction == DIRECTION.UP && previous_direction == DIRECTION.DOWN || direction == DIRECTION.DOWN && previous_direction == DIRECTION.UP:
+			direction = previous_direction
+	
+		previous_direction = direction
+	
 		var head = snake.back()
 		var new_head = Vector2i(head.x, head.y)
 		if direction == DIRECTION.RIGHT:
 			new_head.x += 1	
 		if direction == DIRECTION.LEFT:
 			new_head.x -= 1	
-		if direction == DIRECTION.TOP:
+		if direction == DIRECTION.UP:
 			new_head.y -= 1		
 		if direction == DIRECTION.DOWN:
 			new_head.y += 1	
