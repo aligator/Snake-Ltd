@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://bifknsuvo4qf3"]
+[gd_scene load_steps=8 format=3 uid="uid://bifknsuvo4qf3"]
 
 [ext_resource type="Texture2D" uid="uid://cvnbjhktmrhhw" path="res://assets/map.png" id="1_3kxn6"]
 [ext_resource type="Script" path="res://Game.gd" id="1_xa5w2"]
 [ext_resource type="Texture2D" uid="uid://dau27rcsjqh4y" path="res://assets/snake.png" id="3_seuef"]
+[ext_resource type="PackedScene" uid="uid://d2x03p1vxldpy" path="res://UI.tscn" id="4_ycnx3"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_oecin"]
 texture = ExtResource("1_3kxn6")
@@ -109,5 +110,13 @@ position_smoothing_enabled = true
 [node name="ShrinkTimer" type="Timer" parent="."]
 wait_time = 10.0
 autostart = true
+
+[node name="UI" parent="." instance=ExtResource("4_ycnx3")]
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+grow_horizontal = 1
+grow_vertical = 1
+size_flags_horizontal = 3
 
 [connection signal="timeout" from="ShrinkTimer" to="." method="_on_shrink_timer_timeout"]
