@@ -12,25 +12,58 @@ class Cookie:
 @onready var map = $Map
 @onready var camera = $Camera2D
 @onready var map_bounding_hint: ReferenceRect = $MapBoundingHint
+@onready var effect_timer: Timer = $EffectTimer
 
 var map_bounding
 
 var snake: Array[Vector2i] = []
 var direction = DIRECTION.RIGHT
 var previous_direction = DIRECTION.RIGHT
-var speed: float = 7
+const DEFAULT_SPEED = 7
+var speed: float = DEFAULT_SPEED
 var step: float = 0.0
 var dead: bool = false
 
 var cookies: Array[Cookie] = []
 var eaten_cookies: Array[Cookie] = []
 var do_shrink = false
+var do_grow = false
 
+func _grow():
+	if !do_grow:
+		return
+	do_grow = false
+
+	for x in range(map_bounding.size.x):
+		map.set_cell(0, Vector2i(x, 0) + map_bounding.position, 0, Vector2i(8, 0))
+		map.set_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position, 0, Vector2i(8, 0))
+		
+	for y in range(map_bounding.size.y):
+		map.set_cell(0, Vector2i(0, y) + map_bounding.position, 0, Vector2i(1, 0))
+		map.set_cell(0, Vector2i(map_bounding.size.x-1, y) + map_bounding.position, 0, Vector2i(8, 0))
+
+	map_bounding.position = Vector2i(map_bounding.position.x-1, map_bounding.position.y-1)
+	map_bounding.size = Vector2i(map_bounding.size.x+2, map_bounding.size.y+2)
+	
+	# change all outer to wall
+	for x in range(map_bounding.size.x):
+		map.set_cell(0, Vector2i(x, 0) + map_bounding.position, 0, Vector2i(1, 0))
+		map.set_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position, 0, Vector2i(3, 0))
+		
+	for y in range(map_bounding.size.y):
+		map.set_cell(0, Vector2i(0, y) + map_bounding.position, 0, Vector2i(0, 0))
+		map.set_cell(0, Vector2i(map_bounding.size.x-1, y) + map_bounding.position, 0, Vector2i(2, 0))
+	
+	map.set_cell(0, map_bounding.position, 0, Vector2i(5, 0))
+	map.set_cell(0, Vector2i(map_bounding.position.x + map_bounding.size.x-1, map_bounding.position.y), 0, Vector2i(6, 0))
+	map.set_cell(0, Vector2i(map_bounding.position.x + map_bounding.size.x-1, map_bounding.position.y + map_bounding.size.y-1), 0, Vector2i(7, 0))
+	map.set_cell(0, Vector2i(map_bounding.position.x, map_bounding.position.y-1 + map_bounding.size.y), 0, Vector2i(4, 0))
+	
 func _shrink():
 	if !do_shrink:
 		return
-		
 	do_shrink = false
+
 	for x in range(map_bounding.size.x):
 		map.erase_cell(0, Vector2i(x, 0) + map_bounding.position)
 		map.erase_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position)
@@ -146,6 +179,7 @@ func _process(delta):
 		return
 	
 	_shrink()
+	_grow()
 	
 	if dead:
 		return
@@ -214,7 +248,22 @@ func _process(delta):
 			var cookie: Cookie = eaten_cookies.pop_front()
 			if cookie.cookie_type == COOKIE_TYPE.NORMAL:
 				_spawn_cookie()
-
+			if cookie.cookie_type == COOKIE_TYPE.DUAL_COOKIE:
+				Global.effect_type = Global.EFFECT_TYPE.DUAL_COOKIE
+				_spawn_cookie()
+			if cookie.cookie_type == COOKIE_TYPE.SLOW_DOWN:
+				speed = int(roundf(DEFAULT_SPEED / 2.0))
+				Global.effect_type = Global.EFFECT_TYPE.SLOW_DOWN
+				effect_timer.start()
+			if cookie.cookie_type == COOKIE_TYPE.SPEED_UP:
+				speed = int(roundf(DEFAULT_SPEED * 2))
+				Global.effect_type = Global.EFFECT_TYPE.SPEED_UP
+				effect_timer.start()
+			if cookie.cookie_type == COOKIE_TYPE.GROW:
+				Global.effect_type = Global.EFFECT_TYPE.GROW
+				do_shrink = false
+				do_grow = true
+	
 	map_bounding_hint.size = map_bounding.size * 16
 	map_bounding_hint.position = map_bounding.position * 16
 	
@@ -290,4 +339,10 @@ func _on_shrink_timer_timeout():
 	
 func _on_power_up_timer_timeout():
 	if cookies.filter(func(cookie): return cookie.cookie_type != COOKIE_TYPE.NORMAL).size() == 0:
-		_spawn_cookie(randi_range(0, COOKIE_TYPE_COUNT-1))
+		_spawn_cookie(randi_range(1, COOKIE_TYPE_COUNT-1))
+
+
+func _on_effect_timer_timeout():
+	speed = DEFAULT_SPEED
+	Global.effect_type = Global.EFFECT_TYPE.NORMAL
+	pass # Replace with function body.

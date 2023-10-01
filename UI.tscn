@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://d2x03p1vxldpy"]
+[gd_scene load_steps=4 format=3 uid="uid://d2x03p1vxldpy"]
 
 [sub_resource type="GDScript" id="GDScript_uft8f"]
 script/source = "extends Label
@@ -27,6 +27,30 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	text = str(Global.time) + \" s\"
+"
+
+[sub_resource type="GDScript" id="GDScript_qoor6"]
+script/source = "extends Label
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	if Global.effect_type == Global.EFFECT_TYPE.SPEED_UP:
+		text =\"SPEEED!!\"
+	if Global.effect_type == Global.EFFECT_TYPE.SLOW_DOWN:
+		text =\"SLOOOW!!\"
+	if Global.effect_type == Global.EFFECT_TYPE.GROW:
+		text =\"Bigger Land!!\"
+	if Global.effect_type == Global.EFFECT_TYPE.DUAL_COOKIE:
+		text =\"Mooore Cookies!!\"
+	if Global.effect_type == Global.EFFECT_TYPE.NORMAL:
+		text =\"\"
+
 	pass
 "
 
@@ -58,3 +82,8 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = "0s"
 script = SubResource("GDScript_5ks64")
+
+[node name="PowerUp" type="Label" parent="MarginContainer/Container"]
+layout_mode = 2
+text = "0s"
+script = SubResource("GDScript_qoor6")

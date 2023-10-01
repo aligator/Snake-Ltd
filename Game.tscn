@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bifknsuvo4qf3"]
+[gd_scene load_steps=10 format=3 uid="uid://bifknsuvo4qf3"]
 
 [ext_resource type="Texture2D" uid="uid://cvnbjhktmrhhw" path="res://assets/map.png" id="1_3kxn6"]
 [ext_resource type="Script" path="res://Game.gd" id="1_xa5w2"]
@@ -100,6 +100,21 @@ func _process(delta):
 	pass
 "
 
+[sub_resource type="GDScript" id="GDScript_a6g5s"]
+script/source = "extends Timer
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	Global.effect_timer = int(round(time_left))
+	pass
+"
+
 [node name="Game" type="Node2D"]
 script = ExtResource("1_xa5w2")
 
@@ -133,8 +148,11 @@ script = SubResource("GDScript_jxcag")
 
 [node name="UI" parent="." instance=ExtResource("4_ycnx3")]
 
+[node name="EffectTimer" type="Timer" parent="."]
+wait_time = 10.0
+script = SubResource("GDScript_a6g5s")
+
 [node name="PowerUpTimer" type="Timer" parent="."]
-wait_time = 20.0
 autostart = true
 
 [node name="MapBoundingHint" type="ReferenceRect" parent="."]
@@ -143,4 +161,5 @@ offset_bottom = 40.0
 editor_only = false
 
 [connection signal="timeout" from="ShrinkTimer" to="." method="_on_shrink_timer_timeout"]
+[connection signal="timeout" from="EffectTimer" to="." method="_on_effect_timer_timeout"]
 [connection signal="timeout" from="PowerUpTimer" to="." method="_on_power_up_timer_timeout"]

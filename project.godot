@@ -20,6 +20,10 @@ config/icon="res://icon.svg"
 
 Global="*res://global.gd"
 
+[display]
+
+window/stretch/scale=1.3
+
 [input]
 
 Up={
