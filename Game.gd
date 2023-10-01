@@ -21,6 +21,7 @@ class Cookie:
 @onready var brum_audio: AudioStreamPlayer = $BrumAudio
 @onready var doet_audio: AudioStreamPlayer = $DoetAudio
 @onready var hmm_audio: AudioStreamPlayer = $HmmAudio
+@onready var speed_particles: CPUParticles2D = $SpeedParticles
 
 var map_bounding
 
@@ -202,6 +203,8 @@ func _process(delta):
 	if dead:
 		return
 		
+	speed_particles.emitting = true
+		
 	Global.score = snake.size() - 3
 	
 	if Input.is_action_pressed("Right"):
@@ -307,14 +310,23 @@ func _process(delta):
 				
 		
 		if i == 0: # Tail
+			speed_particles.position = (snake.front() * 16 + Vector2i(1, 1) * 8) 
 			if snake[1].x > body_part.x && snake[1].y == body_part.y:
 				type = 3 # right open
+				speed_particles.direction = Vector2i(-1, 0)
+				speed_particles.position += Vector2(-8, 0)
 			if snake[1].x < body_part.x && snake[1].y == body_part.y:
 				type = 1 # left open
+				speed_particles.direction = Vector2i(1, 0)
+				speed_particles.position += Vector2(8, 0)
 			if snake[1].x == body_part.x && snake[1].y > body_part.y:
 				type = 0 # bottom open
+				speed_particles.direction = Vector2i(0, -1)
+				speed_particles.position += Vector2(0, -8)
 			if snake[1].x == body_part.x && snake[1].y < body_part.y:
 				type = 2 # top open
+				speed_particles.direction = Vector2i(0, 1)
+				speed_particles.position += Vector2(0, 8)
 				
 		if i == snake.size()-1:
 			if snake[snake.size()-2].x > body_part.x && snake[snake.size()-2].y == body_part.y:
