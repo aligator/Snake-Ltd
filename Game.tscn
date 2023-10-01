@@ -156,6 +156,7 @@ script = SubResource("GDScript_a6g5s")
 autostart = true
 
 [node name="MapBoundingHint" type="ReferenceRect" parent="."]
+visible = false
 offset_right = 500.0
 offset_bottom = 40.0
 editor_only = false

@@ -13,6 +13,7 @@ class Cookie:
 @onready var camera = $Camera2D
 @onready var map_bounding_hint: ReferenceRect = $MapBoundingHint
 @onready var effect_timer: Timer = $EffectTimer
+@onready var shrink_timer: Timer = $ShrinkTimer
 
 var map_bounding
 
@@ -39,7 +40,7 @@ func _grow():
 		map.set_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position, 0, Vector2i(8, 0))
 		
 	for y in range(map_bounding.size.y):
-		map.set_cell(0, Vector2i(0, y) + map_bounding.position, 0, Vector2i(1, 0))
+		map.set_cell(0, Vector2i(0, y) + map_bounding.position, 0, Vector2i(8, 0))
 		map.set_cell(0, Vector2i(map_bounding.size.x-1, y) + map_bounding.position, 0, Vector2i(8, 0))
 
 	map_bounding.position = Vector2i(map_bounding.position.x-1, map_bounding.position.y-1)
@@ -263,6 +264,7 @@ func _process(delta):
 				Global.effect_type = Global.EFFECT_TYPE.GROW
 				do_shrink = false
 				do_grow = true
+				shrink_timer.start()
 	
 	map_bounding_hint.size = map_bounding.size * 16
 	map_bounding_hint.position = map_bounding.position * 16

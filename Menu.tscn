@@ -44,7 +44,7 @@ layout_mode = 2
 [node name="Dead" type="Label" parent="DeadScreen/VBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"HeaderLarge"
-text = "You lost!"
+text = "The end..."
 
 [node name="Score" type="Label" parent="DeadScreen/VBoxContainer"]
 layout_mode = 2
