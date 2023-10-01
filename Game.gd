@@ -97,7 +97,7 @@ func _shrink():
 	map_bounding.size = Vector2i(map_bounding.size.x-2, map_bounding.size.y-2)
 	
 	# change all outer to wall
-	for x in range(map_bounding.size.x):
+	for x in range(map_bounding.size.x):	
 		map.set_cell(0, Vector2i(x, 0) + map_bounding.position, 0, Vector2i(1, 0))
 		map.set_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position, 0, Vector2i(3, 0))
 		

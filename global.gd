@@ -15,6 +15,7 @@ var username = ""
 func next_level():
 	level += 1
 	reset()
+	get_tree().change_scene_to_file("res://Game.tscn")
 
 func reset():
 	score = 0
