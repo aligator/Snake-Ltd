@@ -6,7 +6,7 @@ extends CanvasLayer
 @onready var name_input: TextEdit = $"DeadScreen/PanelContainer/MarginContainer/VBoxContainer/NameInput"
 @onready var next_level_button: Button = $"DeadScreen/PanelContainer/MarginContainer/VBoxContainer/CenterContainer/MarginContainer/NextLevel"
 
-const GAME_NAME = "snake_ltd_beta"
+const GAME_NAME = "snake_ltd_v1_"
 
 var highscore: Variant
 
