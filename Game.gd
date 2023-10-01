@@ -11,6 +11,7 @@ class Cookie:
 
 @onready var map: TileMap
 @onready var camera: Camera2D = $Camera2D
+@onready var ui: CanvasLayer = $UI
 @onready var map_bounding_hint: ReferenceRect = $MapBoundingHint
 @onready var effect_timer: Timer = $EffectTimer
 @onready var shrink_timer: Timer = $ShrinkTimer
@@ -214,6 +215,8 @@ func _ready():
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	ui.visible = !dead
+	
 	if dead:
 		death_screen.show()
 		return
