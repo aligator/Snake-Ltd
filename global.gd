@@ -7,3 +7,9 @@ var time: int = 0
 
 var effect_timer: int = 0
 var effect_type = EFFECT_TYPE.NORMAL
+
+func reset():
+	score = 0
+	time = 0
+	effect_timer = 0
+	effect_type = EFFECT_TYPE.NORMAL

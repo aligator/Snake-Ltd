@@ -35,14 +35,17 @@ func _grow():
 		return
 	do_grow = false
 
+	var cells: Array[Vector2i] = []
 	for x in range(map_bounding.size.x):
-		map.set_cell(0, Vector2i(x, 0) + map_bounding.position, 0, Vector2i(8, 0))
-		map.set_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position, 0, Vector2i(8, 0))
-		
+		cells.append(Vector2i(x, 0) + map_bounding.position)
+		cells.append(Vector2i(x, map_bounding.size.y-1) + map_bounding.position)
+				
 	for y in range(map_bounding.size.y):
-		map.set_cell(0, Vector2i(0, y) + map_bounding.position, 0, Vector2i(8, 0))
-		map.set_cell(0, Vector2i(map_bounding.size.x-1, y) + map_bounding.position, 0, Vector2i(8, 0))
-
+		cells.append(Vector2i(0, y) + map_bounding.position)
+		cells.append(Vector2i(map_bounding.size.x-1, y) + map_bounding.position)
+		
+	map.set_cells_terrain_connect(0, cells, 0, 0)
+		
 	map_bounding.position = Vector2i(map_bounding.position.x-1, map_bounding.position.y-1)
 	map_bounding.size = Vector2i(map_bounding.size.x+2, map_bounding.size.y+2)
 	
@@ -340,9 +343,8 @@ func _on_shrink_timer_timeout():
 	do_shrink = true
 	
 func _on_power_up_timer_timeout():
-	if cookies.filter(func(cookie): return cookie.cookie_type != COOKIE_TYPE.NORMAL).size() == 0:
-		_spawn_cookie(randi_range(1, COOKIE_TYPE_COUNT-1))
-
+	cookies = cookies.filter(func(cookie): return cookie.cookie_type == COOKIE_TYPE.NORMAL)
+	_spawn_cookie(randi_range(1, COOKIE_TYPE_COUNT-1))
 
 func _on_effect_timer_timeout():
 	speed = DEFAULT_SPEED
