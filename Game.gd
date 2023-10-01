@@ -11,6 +11,9 @@ class Cookie:
 
 @onready var map = $Map
 @onready var camera = $Camera2D
+@onready var map_bounding_hint: ReferenceRect = $MapBoundingHint
+
+var map_bounding
 
 var snake: Array[Vector2i] = []
 var direction = DIRECTION.RIGHT
@@ -27,37 +30,33 @@ func _shrink():
 	if !do_shrink:
 		return
 		
-	# Clear cookie layer to avoid calculation errors
-	map.clear_layer(2)
-		
 	do_shrink = false
-	var current_size = map.get_used_rect().size
-	var current_position = map.get_used_rect().position
-	for x in range(current_size.x):
-		map.erase_cell(0, Vector2i(x, 0) + current_position)
-		map.erase_cell(0, Vector2i(x, current_size.y-1) + current_position)
+	for x in range(map_bounding.size.x):
+		map.erase_cell(0, Vector2i(x, 0) + map_bounding.position)
+		map.erase_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position)
 		
-	for y in range(current_size.y):
-		map.erase_cell(0, Vector2i(0, y) + current_position)
-		map.erase_cell(0, Vector2i(current_size.x-1, y) + current_position)
-		
+	for y in range(map_bounding.size.y):
+		map.erase_cell(0, Vector2i(0, y) + map_bounding.position)
+		map.erase_cell(0, Vector2i(map_bounding.size.x-1, y) + map_bounding.position)
+	
+	map_bounding.position = Vector2i(map_bounding.position.x+1, map_bounding.position.y+1)
+	map_bounding.size = Vector2i(map_bounding.size.x-2, map_bounding.size.y-2)
+	
 	# change all outer to wall
-	current_size = map.get_used_rect().size
-	current_position = map.get_used_rect().position
-	for x in range(current_size.x):
-		map.set_cell(0, Vector2i(x, 0) + current_position, 0, Vector2i(1, 0))
-		map.set_cell(0, Vector2i(x, current_size.y-1) + current_position, 0, Vector2i(3, 0))
+	for x in range(map_bounding.size.x):
+		map.set_cell(0, Vector2i(x, 0) + map_bounding.position, 0, Vector2i(1, 0))
+		map.set_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position, 0, Vector2i(3, 0))
 		
-	for y in range(current_size.y):
-		map.set_cell(0, Vector2i(0, y) + current_position, 0, Vector2i(0, 0))
-		map.set_cell(0, Vector2i(current_size.x-1, y) + current_position, 0, Vector2i(2, 0))
+	for y in range(map_bounding.size.y):
+		map.set_cell(0, Vector2i(0, y) + map_bounding.position, 0, Vector2i(0, 0))
+		map.set_cell(0, Vector2i(map_bounding.size.x-1, y) + map_bounding.position, 0, Vector2i(2, 0))
 	
-	map.set_cell(0, current_position, 0, Vector2i(5, 0))
-	map.set_cell(0, Vector2i(current_position.x + current_size.x-1, current_position.y), 0, Vector2i(6, 0))
-	map.set_cell(0, Vector2i(current_position.x + current_size.x-1, current_position.y + current_size.y-1), 0, Vector2i(7, 0))
-	map.set_cell(0, Vector2i(current_position.x, current_position.y-1 + current_size.y), 0, Vector2i(4, 0))
+	map.set_cell(0, map_bounding.position, 0, Vector2i(5, 0))
+	map.set_cell(0, Vector2i(map_bounding.position.x + map_bounding.size.x-1, map_bounding.position.y), 0, Vector2i(6, 0))
+	map.set_cell(0, Vector2i(map_bounding.position.x + map_bounding.size.x-1, map_bounding.position.y + map_bounding.size.y-1), 0, Vector2i(7, 0))
+	map.set_cell(0, Vector2i(map_bounding.position.x, map_bounding.position.y-1 + map_bounding.size.y), 0, Vector2i(4, 0))
 	
-	# Check if the tail has to be cut
+	# Check if you are dead
 	var position_to_cut = -1
 	for i in range(snake.size()):
 		var tile = map.get_cell_tile_data(0, snake[i])
@@ -66,59 +65,68 @@ func _shrink():
 			position_to_cut = i
 			
 	if position_to_cut >= 0:
-		if _cut_snake(position_to_cut):
-			return
-
-func _cut_snake(at: int) -> bool:
-	# No cutting - instant death
+		dead = true
+		return
 	
-	#snake = snake.slice(at, snake.size())
-	#if snake.size() <= 3:
-	dead = true
+	var need_recreate: Array[Cookie] = []
+	for i in range(cookies.size()):
+		var cookie = cookies[i]
+		if !_check_cookie_location(cookie):
+			if cookie.cookie_type == COOKIE_TYPE.NORMAL:
+				need_recreate.append(cookie)
+			cookies[i] = null
+	
+	cookies = cookies.filter(func(cookie): return cookie != null)
+	
+	for i in range(need_recreate.size()):
+		_spawn_cookie(need_recreate[i].cookie_type)
+			
+
+func _cut_snake(at: int) -> bool:	
+	snake = snake.slice(at, snake.size())
+	if snake.size() <= 3:
+		dead = true
 
 	return dead
 
 func _spawn_cookie(cookie_type = COOKIE_TYPE.NORMAL):	
 	var is_wrong = true
 	var cookie: Cookie
+	
 	while is_wrong:
-		var bounding = map.get_used_rect()
-		var x = randi_range(0, bounding.size.x-1)
-		var y = randi_range(0, bounding.size.y-1)
+		var x = randi_range(1, map_bounding.size.x-2)
+		var y = randi_range(1, map_bounding.size.y-2)
 	
 		cookie = Cookie.new()
-		cookie.position = Vector2i(x, y)
+		cookie.position = Vector2i(x, y) + map_bounding.position
 		cookie.is_in_snake = false
 		cookie.cookie_type = cookie_type
 	
-		is_wrong = false
-		for snake_body_part in snake:
-			if snake_body_part == cookie.position:
-				is_wrong = true
-				return
+		is_wrong = !_check_cookie_location(cookie, true)
 	
 	cookies.append(cookie)
 	pass
 
-func _check_cookie():
-	var need_check = true 
-	while need_check:
-		need_check = false
-		var recreate: Array[Cookie] = []
-		for i in range(cookies.size()):
-			var cookie = cookies[i]
-			var tile = map.get_cell_tile_data(0, cookie.position)
-			if tile == null || map.get_cell_tile_data(0, cookie.position).get_custom_data("wall"):
-				recreate.append(cookies[i])
-				cookies[i] = null
+func _check_cookie_location(cookie: Cookie, check_cookie_layer = false) -> bool:
+	var is_wrong = false
+	
+	# Get the map tile at this position
+	var map_tile = map.get_cell_tile_data(0, cookie.position)
+	if map_tile == null || map_tile.get_custom_data("wall"):		
+		is_wrong = true
+	
+	# Get the ssnake layer
+	var snake_tile = map.get_cell_source_id(1, cookie.position)
+	if snake_tile != -1:
+		is_wrong = true
 		
-		cookies = cookies.filter(func(cookie): return cookie != null)
-			
-		for i in range(recreate.size()):
-			_spawn_cookie(recreate[i].cookie_type)
+	if check_cookie_layer:
+		# Get the cookie layer
+		var cookie_tile = map.get_cell_source_id(2, cookie.position)
+		if cookie_tile != -1:
+			is_wrong = true
 		
-		if recreate.size() > 0:
-			need_check = true
+	return !is_wrong
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -126,6 +134,8 @@ func _ready():
 	snake.append(Vector2i(1, 5))
 	snake.append(Vector2i(2, 5))
 	snake.append(Vector2i(3, 5))
+	
+	map_bounding = map.get_used_rect()
 	
 	_spawn_cookie()
 
@@ -141,8 +151,6 @@ func _process(delta):
 		return
 		
 	Global.score = snake.size() - 3
-		
-	_check_cookie()
 	
 	if Input.is_action_pressed("Right"):
 		direction = DIRECTION.RIGHT
@@ -183,9 +191,7 @@ func _process(delta):
 				
 		if collision_index >= 0:
 			# Cut snake at the collision position
-			snake = snake.slice(collision_index, snake.size())
-			if snake.size() <= 3:
-				dead = true
+			if _cut_snake(collision_index):
 				return
 		
 		var isWall = map.get_cell_tile_data(0, new_head).get_custom_data("wall")
@@ -208,6 +214,9 @@ func _process(delta):
 			var cookie: Cookie = eaten_cookies.pop_front()
 			if cookie.cookie_type == COOKIE_TYPE.NORMAL:
 				_spawn_cookie()
+
+	map_bounding_hint.size = map_bounding.size * 16
+	map_bounding_hint.position = map_bounding.position * 16
 	
 	# render cookies
 	map.clear_layer(2)
@@ -272,6 +281,8 @@ func _process(delta):
 				type = 7 # bottom right open
 		
 		map.set_cell(1, body_part, 1, Vector2i(type, 0))
+		
+		
 
 
 func _on_shrink_timer_timeout():

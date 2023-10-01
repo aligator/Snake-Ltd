@@ -137,5 +137,10 @@ script = SubResource("GDScript_jxcag")
 wait_time = 20.0
 autostart = true
 
+[node name="MapBoundingHint" type="ReferenceRect" parent="."]
+offset_right = 500.0
+offset_bottom = 40.0
+editor_only = false
+
 [connection signal="timeout" from="ShrinkTimer" to="." method="_on_shrink_timer_timeout"]
 [connection signal="timeout" from="PowerUpTimer" to="." method="_on_power_up_timer_timeout"]
