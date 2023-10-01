@@ -8,7 +8,13 @@ var time: int = 0
 var effect_timer: int = 0
 var effect_type = EFFECT_TYPE.NORMAL
 
+var level = 0
+
 var username = ""
+
+func next_level():
+	level += 1
+	reset()
 
 func reset():
 	score = 0

@@ -12,7 +12,7 @@ var highscore: Variant
 
 func _load_highscore():
 	# load highscore
-	var error = http_get_request.request("http://scores.edv-bitches.de/highscore/" + GAME_NAME + "?page=0&page_size=50", PackedStringArray(), HTTPClient.METHOD_GET)
+	var error = http_get_request.request("http://scores.edv-bitches.de/highscore/" + GAME_NAME + str(Global.level) + "?page=0&page_size=50", PackedStringArray(), HTTPClient.METHOD_GET)
 	print("err", error)
 
 # Called when the node enters the scene tree for the first time.
@@ -62,7 +62,7 @@ func _on_new_highscore_pressed():
 	Global.username = username
 	
 	var body = JSON.stringify({"name": username, "score": Global.score})
-	var error = http_post_request.request("http://scores.edv-bitches.de/highscore/" + GAME_NAME, PackedStringArray(), HTTPClient.METHOD_POST, body)
+	var error = http_post_request.request("http://scores.edv-bitches.de/highscore/" + GAME_NAME + str(Global.level), PackedStringArray(), HTTPClient.METHOD_POST, body)
 	print("err", error)
 	
 

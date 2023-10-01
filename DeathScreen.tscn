@@ -1,6 +1,20 @@
-[gd_scene load_steps=4 format=3 uid="uid://gd061jtji0gv"]
+[gd_scene load_steps=5 format=3 uid="uid://gd061jtji0gv"]
 
 [ext_resource type="Script" path="res://DeathScreen.gd" id="1_2euxp"]
+
+[sub_resource type="GDScript" id="GDScript_v7i42"]
+script/source = "extends Label
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	text = \"Level: \" + str(Global.level + 1)
+"
 
 [sub_resource type="GDScript" id="GDScript_djc5w"]
 script/source = "extends Label
@@ -24,7 +38,7 @@ func _process(delta):
 		_on_pressed()
 
 func _on_pressed():
-	Global.reset()
+	Global.next_level()
 	get_tree().change_scene_to_file(\"res://Game.tscn\")
 	pass # Replace with function body.
 "
@@ -53,10 +67,11 @@ theme_override_constants/margin_bottom = 20
 [node name="VBoxContainer" type="VBoxContainer" parent="DeadScreen/PanelContainer/MarginContainer"]
 layout_mode = 2
 
-[node name="Dead" type="Label" parent="DeadScreen/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Level" type="Label" parent="DeadScreen/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"HeaderLarge"
 text = "The end..."
+script = SubResource("GDScript_v7i42")
 
 [node name="Score" type="Label" parent="DeadScreen/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -121,9 +136,9 @@ placeholder_text = "Your Name (A-Za-z0-9 )"
 [node name="HBoxContainer" type="HBoxContainer" parent="DeadScreen/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Restart" type="Button" parent="DeadScreen/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="NextLevel" type="Button" parent="DeadScreen/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "Restart"
+text = "Next Level"
 script = SubResource("GDScript_ejh3k")
 
 [node name="NewHighscore" type="Button" parent="DeadScreen/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
@@ -131,5 +146,5 @@ layout_mode = 2
 text = "Add to Highscore"
 
 [connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
-[connection signal="pressed" from="DeadScreen/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/Restart" to="DeadScreen/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/Restart" method="_on_pressed"]
+[connection signal="pressed" from="DeadScreen/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/NextLevel" to="DeadScreen/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/NextLevel" method="_on_pressed"]
 [connection signal="pressed" from="DeadScreen/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/NewHighscore" to="." method="_on_new_highscore_pressed"]

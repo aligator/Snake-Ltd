@@ -9,8 +9,8 @@ class Cookie:
 	var is_in_snake: bool
 	var cookie_type: COOKIE_TYPE
 
-@onready var map = $Map
-@onready var camera = $Camera2D
+@onready var map: TileMap
+@onready var camera: Camera2D = $Camera2D
 @onready var map_bounding_hint: ReferenceRect = $MapBoundingHint
 @onready var effect_timer: Timer = $EffectTimer
 @onready var shrink_timer: Timer = $ShrinkTimer
@@ -137,9 +137,18 @@ func _shrink():
 		_spawn_cookie(need_recreate[i].cookie_type)
 			
 
+func _is_in_snake(cookie: Cookie) -> bool:
+	for snake_body_part in snake:
+		if snake_body_part == cookie.position:
+			return true
+	return false
+
 func _cut_snake(at: int) -> bool:	
 	au_audio.play()
 	snake = snake.slice(at, snake.size())
+	
+	eaten_cookies = eaten_cookies.filter(_is_in_snake)			
+	
 	if snake.size() <= 3:
 		dead = true
 
@@ -186,6 +195,13 @@ func _check_cookie_location(cookie: Cookie, check_cookie_layer = false) -> bool:
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	# load level
+	if $Levels.get_child_count() == Global.level:
+		Global.level = 0
+		
+	map = $Levels.get_child(Global.level)
+	map.show()
+	
 	# spawn initial snake
 	snake.append(Vector2i(1, 5))
 	snake.append(Vector2i(2, 5))
