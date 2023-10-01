@@ -14,6 +14,13 @@ class Cookie:
 @onready var map_bounding_hint: ReferenceRect = $MapBoundingHint
 @onready var effect_timer: Timer = $EffectTimer
 @onready var shrink_timer: Timer = $ShrinkTimer
+@onready var sch_audio: AudioStreamPlayer = $SchAudio
+@onready var hcs_audio: AudioStreamPlayer = $HcsAudio
+@onready var ham_audio: AudioStreamPlayer = $HamAudio
+@onready var au_audio: AudioStreamPlayer = $AuAudio
+@onready var brum_audio: AudioStreamPlayer = $BrumAudio
+@onready var doet_audio: AudioStreamPlayer = $DoetAudio
+@onready var hmm_audio: AudioStreamPlayer = $HmmAudio
 
 var map_bounding
 
@@ -34,6 +41,8 @@ func _grow():
 	if !do_grow:
 		return
 	do_grow = false
+
+	hcs_audio.play()
 
 	for count in range(3):
 		var cells: Array[Vector2i] = []
@@ -69,7 +78,9 @@ func _shrink():
 	if !do_shrink:
 		return
 	do_shrink = false
-
+	
+	sch_audio.play()
+	
 	for x in range(map_bounding.size.x):
 		map.erase_cell(0, Vector2i(x, 0) + map_bounding.position)
 		map.erase_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position)
@@ -122,6 +133,7 @@ func _shrink():
 			
 
 func _cut_snake(at: int) -> bool:	
+	au_audio.play()
 	snake = snake.slice(at, snake.size())
 	if snake.size() <= 3:
 		dead = true
@@ -244,6 +256,7 @@ func _process(delta):
 		for i in range(cookies.size()):
 			var cookie = cookies[i]
 			if cookie.position == new_head:
+				ham_audio.play()
 				cookies.pop_at(i)
 				eaten_cookies.append(cookie)
 				break
@@ -256,13 +269,16 @@ func _process(delta):
 				_spawn_cookie()
 			if cookie.cookie_type == COOKIE_TYPE.DUAL_COOKIE:
 				Global.effect_type = Global.EFFECT_TYPE.DUAL_COOKIE
+				hmm_audio.play()
 				_spawn_cookie()
 			if cookie.cookie_type == COOKIE_TYPE.SLOW_DOWN:
 				speed = int(roundf(DEFAULT_SPEED / 2.0))
+				doet_audio.play()
 				Global.effect_type = Global.EFFECT_TYPE.SLOW_DOWN
 				effect_timer.start()
 			if cookie.cookie_type == COOKIE_TYPE.SPEED_UP:
 				speed = int(roundf(DEFAULT_SPEED * 2))
+				brum_audio.play()
 				Global.effect_type = Global.EFFECT_TYPE.SPEED_UP
 				effect_timer.start()
 			if cookie.cookie_type == COOKIE_TYPE.GROW:

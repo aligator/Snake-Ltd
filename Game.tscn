@@ -1,8 +1,15 @@
-[gd_scene load_steps=6 format=3 uid="uid://bifknsuvo4qf3"]
+[gd_scene load_steps=13 format=3 uid="uid://bifknsuvo4qf3"]
 
 [ext_resource type="Script" path="res://Game.gd" id="1_xa5w2"]
 [ext_resource type="TileSet" uid="uid://ddo1sc0yaqf4m" path="res://assets/Map.tres" id="2_pfvei"]
+[ext_resource type="AudioStream" uid="uid://d0eg44al0mfd4" path="res://assets/sch.wav" id="4_dnkjp"]
 [ext_resource type="PackedScene" uid="uid://d2x03p1vxldpy" path="res://UI.tscn" id="4_ycnx3"]
+[ext_resource type="AudioStream" uid="uid://bcwql07mridmc" path="res://assets/ham.wav" id="5_5jrei"]
+[ext_resource type="AudioStream" uid="uid://bnbahiqpag3un" path="res://assets/au.wav" id="6_68poi"]
+[ext_resource type="AudioStream" uid="uid://bmxm7bosbly47" path="res://assets/hcs.mp3" id="7_lwe0f"]
+[ext_resource type="AudioStream" uid="uid://1wom05y7em5g" path="res://assets/brum.wav" id="8_8nh0m"]
+[ext_resource type="AudioStream" uid="uid://drcu3jcov5ca1" path="res://assets/doet.wav" id="9_ie7ke"]
+[ext_resource type="AudioStream" uid="uid://2qbj8sdxuuwb" path="res://assets/hmm.wav" id="10_q222c"]
 
 [sub_resource type="GDScript" id="GDScript_jxcag"]
 script/source = "extends Timer
@@ -101,6 +108,27 @@ visible = false
 offset_right = 500.0
 offset_bottom = 40.0
 editor_only = false
+
+[node name="SchAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_dnkjp")
+
+[node name="HamAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_5jrei")
+
+[node name="AuAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_68poi")
+
+[node name="HcsAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_lwe0f")
+
+[node name="BrumAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_8nh0m")
+
+[node name="DoetAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_ie7ke")
+
+[node name="HmmAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10_q222c")
 
 [connection signal="timeout" from="ShrinkTimer" to="." method="_on_shrink_timer_timeout"]
 [connection signal="timeout" from="EffectTimer" to="." method="_on_effect_timer_timeout"]
