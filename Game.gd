@@ -35,33 +35,35 @@ func _grow():
 		return
 	do_grow = false
 
-	var cells: Array[Vector2i] = []
-	for x in range(map_bounding.size.x):
-		cells.append(Vector2i(x, 0) + map_bounding.position)
-		cells.append(Vector2i(x, map_bounding.size.y-1) + map_bounding.position)
-				
-	for y in range(map_bounding.size.y):
-		cells.append(Vector2i(0, y) + map_bounding.position)
-		cells.append(Vector2i(map_bounding.size.x-1, y) + map_bounding.position)
+	for count in range(3):
+		var cells: Array[Vector2i] = []
+		for x in range(map_bounding.size.x):
+			cells.append(Vector2i(x, 0) + map_bounding.position)
+			cells.append(Vector2i(x, map_bounding.size.y-1) + map_bounding.position)
+					
+		for y in range(map_bounding.size.y):
+			cells.append(Vector2i(0, y) + map_bounding.position)
+			cells.append(Vector2i(map_bounding.size.x-1, y) + map_bounding.position)
+			
+		for cell in cells:
+			map.set_cell(0, cell, 0, Vector2i(8, randi_range(0, 3)))
+			
+		map_bounding.position = Vector2i(map_bounding.position.x-1, map_bounding.position.y-1)
+		map_bounding.size = Vector2i(map_bounding.size.x+2, map_bounding.size.y+2)
 		
-	map.set_cells_terrain_connect(0, cells, 0, 0)
+		# change all outer to wall
+		for x in range(map_bounding.size.x):
+			map.set_cell(0, Vector2i(x, 0) + map_bounding.position, 0, Vector2i(1, 0))
+			map.set_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position, 0, Vector2i(3, 0))
+			
+		for y in range(map_bounding.size.y):
+			map.set_cell(0, Vector2i(0, y) + map_bounding.position, 0, Vector2i(0, 0))
+			map.set_cell(0, Vector2i(map_bounding.size.x-1, y) + map_bounding.position, 0, Vector2i(2, 0))
 		
-	map_bounding.position = Vector2i(map_bounding.position.x-1, map_bounding.position.y-1)
-	map_bounding.size = Vector2i(map_bounding.size.x+2, map_bounding.size.y+2)
-	
-	# change all outer to wall
-	for x in range(map_bounding.size.x):
-		map.set_cell(0, Vector2i(x, 0) + map_bounding.position, 0, Vector2i(1, 0))
-		map.set_cell(0, Vector2i(x, map_bounding.size.y-1) + map_bounding.position, 0, Vector2i(3, 0))
-		
-	for y in range(map_bounding.size.y):
-		map.set_cell(0, Vector2i(0, y) + map_bounding.position, 0, Vector2i(0, 0))
-		map.set_cell(0, Vector2i(map_bounding.size.x-1, y) + map_bounding.position, 0, Vector2i(2, 0))
-	
-	map.set_cell(0, map_bounding.position, 0, Vector2i(5, 0))
-	map.set_cell(0, Vector2i(map_bounding.position.x + map_bounding.size.x-1, map_bounding.position.y), 0, Vector2i(6, 0))
-	map.set_cell(0, Vector2i(map_bounding.position.x + map_bounding.size.x-1, map_bounding.position.y + map_bounding.size.y-1), 0, Vector2i(7, 0))
-	map.set_cell(0, Vector2i(map_bounding.position.x, map_bounding.position.y-1 + map_bounding.size.y), 0, Vector2i(4, 0))
+		map.set_cell(0, map_bounding.position, 0, Vector2i(5, 0))
+		map.set_cell(0, Vector2i(map_bounding.position.x + map_bounding.size.x-1, map_bounding.position.y), 0, Vector2i(6, 0))
+		map.set_cell(0, Vector2i(map_bounding.position.x + map_bounding.size.x-1, map_bounding.position.y + map_bounding.size.y-1), 0, Vector2i(7, 0))
+		map.set_cell(0, Vector2i(map_bounding.position.x, map_bounding.position.y-1 + map_bounding.size.y), 0, Vector2i(4, 0))
 	
 func _shrink():
 	if !do_shrink:
@@ -246,7 +248,7 @@ func _process(delta):
 				eaten_cookies.append(cookie)
 				break
 		
-		if eaten_cookies.front() == null || eaten_cookies.front().position != snake.front():
+		if eaten_cookies.size() == 0 || eaten_cookies.front() == null || eaten_cookies.front().position != snake.front():
 			snake.pop_front()
 		else:
 			var cookie: Cookie = eaten_cookies.pop_front()

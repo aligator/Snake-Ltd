@@ -13,3 +13,7 @@ func reset():
 	time = 0
 	effect_timer = 0
 	effect_type = EFFECT_TYPE.NORMAL
+
+func _process(delta):
+	if Input.is_action_pressed("Quit"):
+		get_tree().quit()

@@ -79,6 +79,7 @@ layer_2/tile_data = PackedInt32Array()
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position_smoothing_enabled = true
+position_smoothing_speed = 3.0
 
 [node name="ShrinkTimer" type="Timer" parent="."]
 wait_time = 5.0
