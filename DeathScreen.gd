@@ -35,13 +35,10 @@ func _on_get_highscore_request_completed(result, response_code, headers, body):
 	var json = JSON.new()
 	json.parse(body.get_string_from_utf8())
 	var response = json.get_data()
-	print(response)
 	highscore = response
 
 	for i in range(highscore.highscores.size()):
 		var score = highscore.highscores[i]
-		print(score.name)
-		print(score.score)
 		highscore_list.get_child(i).text = str(i+1) + ". " + score.name +  ": " + str(score.score)
 	pass
 
@@ -64,7 +61,7 @@ func _on_new_highscore_pressed():
 	
 	Global.username = username
 	
-	var body = JSON.new().stringify({"name": username, "score": Global.score})
+	var body = JSON.stringify({"name": username, "score": Global.score})
 	var error = http_post_request.request("http://scores.edv-bitches.de/highscore/" + GAME_NAME, PackedStringArray(), HTTPClient.METHOD_POST, body)
 	print("err", error)
 	

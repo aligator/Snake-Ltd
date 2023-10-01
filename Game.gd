@@ -21,6 +21,7 @@ class Cookie:
 @onready var brum_audio: AudioStreamPlayer = $BrumAudio
 @onready var doet_audio: AudioStreamPlayer = $DoetAudio
 @onready var hmm_audio: AudioStreamPlayer = $HmmAudio
+@onready var huhu_audio: AudioStreamPlayer = $HuhuAudio
 @onready var speed_particles: CPUParticles2D = $SpeedParticles
 
 @onready var death_screen: CanvasLayer = $DeathScreen
@@ -118,6 +119,7 @@ func _shrink():
 			position_to_cut = i
 			
 	if position_to_cut >= 0:
+		au_audio.play()
 		dead = true
 		return
 	
@@ -192,7 +194,8 @@ func _ready():
 	map_bounding = map.get_used_rect()
 	
 	_spawn_cookie()
-
+	huhu_audio.play()
+	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if dead:
@@ -253,6 +256,7 @@ func _process(delta):
 		
 		var isWall = map.get_cell_tile_data(0, new_head).get_custom_data("wall")
 		if isWall:
+			au_audio.play()
 			dead = true
 			return
 			
