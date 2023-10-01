@@ -8,6 +8,8 @@ var time: int = 0
 var effect_timer: int = 0
 var effect_type = EFFECT_TYPE.NORMAL
 
+var username = ""
+
 func reset():
 	score = 0
 	time = 0

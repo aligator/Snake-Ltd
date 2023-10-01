@@ -23,6 +23,8 @@ class Cookie:
 @onready var hmm_audio: AudioStreamPlayer = $HmmAudio
 @onready var speed_particles: CPUParticles2D = $SpeedParticles
 
+@onready var death_screen: CanvasLayer = $DeathScreen
+
 var map_bounding
 
 var snake: Array[Vector2i] = []
@@ -194,7 +196,7 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if dead:
-		get_tree().change_scene_to_file("res://Menu.tscn")
+		death_screen.show()
 		return
 	
 	_shrink()
